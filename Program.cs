@@ -12,6 +12,7 @@ namespace Battleship
             Game game = new Game();
             game.SetupGame();
             game.PlayGame();
+            Console.WriteLine("[INFO] No ships remain! The game has ended. You have lost.");
 
         }
     }

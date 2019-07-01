@@ -36,6 +36,7 @@ namespace Battleship {
             _hits++;
         }
 
+        // Returns the absolutel value of the difference of the non shared axis
         private int CalcShipLength() {
             if (_bow.GetX() == _stern.GetX()) {
                 return Math.Abs(_bow.GetY() - _stern.GetY())+1;
@@ -44,6 +45,8 @@ namespace Battleship {
             }
         }
         
+        // Checks if the point shares one axis with the ship and whether the other
+        //  axis is between the bow and stern 
         public bool IsPointOnShip(Point p) {
             // Same vertical axis
             if (p.GetX() == _bow.GetX()) {
@@ -68,6 +71,8 @@ namespace Battleship {
             return false;
         }
         
+        // Based on the placement of points, generates an array of Points between
+        //  and including bow and stern
         public Point[] GetPoints() {
             Point[] points = new Point[_length];
 
@@ -102,6 +107,7 @@ namespace Battleship {
             return points;
         }
 
+        // Override for ship printing. Purely aesthetical
         override public string ToString() {
             string ship;
             if (_length == 1) {

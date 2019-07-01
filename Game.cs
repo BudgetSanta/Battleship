@@ -6,20 +6,26 @@ namespace Battleship {
 
         Player _player;
         int _gridSize;
-        int _maxGridValue;
+        int _maxGridValue;                          // Nicer value to reference than _gridSize - 1
 
         public Game() {
 
             int gridSize = GetUserInt("Enter board size (n*n) [0->]: ");
-            int shipCount = GetUserInt("Enter number of ships [1->]: ");
-            _player = new Player(shipCount);
             _gridSize = gridSize;
             _maxGridValue = _gridSize - 1;
+
+            int shipCount = GetUserInt(String.Format("Enter number of ships [1->{0}]: ", _gridSize*_gridSize));
+            while (shipCount > _gridSize*_gridSize) {
+                Console.WriteLine(String.Format("[ERROR] You can have a maximum of {0} ships with a board size of {1}*{1}. Please try again.", _gridSize*_gridSize, _gridSize));
+                shipCount = GetUserInt(String.Format("Enter number of ships [1->{0}]: ", _gridSize*_gridSize));
+            }
+            _player = new Player(shipCount);
 
         }
 
         // GAME LOGIC
 
+        // Creates game setup, board size, num ships, 2 x,y coords per ship with checking for valid positioning
         public void SetupGame() {
 
             while (!_player.IsFinishedSetup()) {
@@ -50,11 +56,11 @@ namespace Battleship {
                 Fire(guess);
             }
 
-            Console.WriteLine("[INFO] No ships remain! The game has ended. You have lost.");
         }
         
         // ACTIONS
 
+        // Makes a guess on the board and reports back
         private void Fire(Point point) {
             if (_player.IsAHit(point)) {
                 Console.WriteLine(String.Format("[INFO] Point: {0} hit", point));
@@ -67,14 +73,17 @@ namespace Battleship {
             } else {
                 Console.WriteLine(String.Format("[INFO] Point: {0} missed", point));
             }
+
         }
         
         // CHECKS
         
+        // When all player ships have sunk, they've lost
         private bool HasLostGame() {
             return (_player.GetShips().Length == _player.GetSunkShips());
         }
 
+        // Places ship if it can be placed
         private bool PlaceShip(Ship ship) {
             if (IsValidShipPlacement(ship) && IsNotOverLapping(ship)) {
                 _player.AddShip(ship);
@@ -83,16 +92,21 @@ namespace Battleship {
             return false;
         }
 
+        // Checks if both ends of the ship are valid board points 
+        //  ensuring the whole boat is valid
         private bool IsValidShipPlacement(Ship s) {
             return (IsValidBoardPoint(s.GetBow()) && IsValidBoardPoint(s.GetStern()));
         }
 
+        // Checks if point lies on the game's grid
         private bool IsValidBoardPoint(Point p) {
             bool xValid = p.GetX() >= 0 && p.GetX() < _gridSize;
             bool yValid = p.GetY() >= 0 && p.GetY() < _gridSize;
             return (xValid && yValid);
         }
         
+        // Checks if the given ship shared a point with 
+        //  any other ship in the players invetory
         private bool IsNotOverLapping(Ship newShip) {
             foreach (Point newPoint in newShip.GetPoints()) {
                 foreach (Ship playerShip in _player.GetShips()) {
@@ -106,13 +120,13 @@ namespace Battleship {
 
         // HELPERS
 
+        // Get an integer from the user checking that its a valid number
         private int GetUserInt(string prompt) {
             Console.Write(prompt);
             string input = Console.ReadLine();
             int number; 
-            // Keep requesting number while input is NaN and Not valid board point
-            while (!Int32.TryParse(input, out number) 
-                    && IsValidBoardPoint( new Point(number, 0)) ) {
+            // Keep requesting number while input is NaN
+            while (!Int32.TryParse(input, out number)) {
                 Console.WriteLine("[ERROR]: {0} is not a valid input. Try again!", input);
                 Console.Write(prompt);
                 input = Console.ReadLine();
